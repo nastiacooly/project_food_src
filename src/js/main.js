@@ -12,7 +12,8 @@ window.addEventListener('DOMContentLoaded', () => {
         millisecondsInAMinute = millisecondsInASecond * 60,
         modal = document.querySelector('.modal'),
         openModalButtons = document.querySelectorAll('[data-modal="open"]'),
-        closeModalButton = document.querySelector('[data-modal="close"]');
+        closeModalButton = document.querySelector('[data-modal="close"]'),
+        forms = document.querySelectorAll('form');
 
     //Tabs
     //functions for tabs
@@ -219,4 +220,50 @@ window.addEventListener('DOMContentLoaded', () => {
         6, 
         ".menu__field > .container"
     ).render();
+
+    //Sending forms to server
+
+    const message = {
+        loading: 'Загрузка',
+        success: 'Спасибо! Скоро мы с вами свяжемся.',
+        fail: 'Что-то пошло не так...'
+    };
+
+    forms.forEach(form => { //для каждой формы вызываем функцию postData
+        postData(form);
+    });
+    
+    function postData(form) {
+        form.addEventListener('submit', (e) => {
+            e.preventDefault(); //убираем стандартное поведение браузера при отправке формы
+
+            //создаем блок для сообщения пользователю о статусе отправки формы
+            const statusMessage = document.createElement('div');
+            statusMessage.classList.add('status');
+            statusMessage.textContent = message.loading;
+            form.append(statusMessage); //выводим блок в конце формы
+
+            const request = new XMLHttpRequest();
+            request.open('POST', 'server.php'); //создаем POST-запрос
+
+            const formData = new FormData(form); //переформатируем данные формы в FormData
+
+            request.send(formData); //отправляем данные на сервер
+
+            request.addEventListener('load', () => { //событие при завершении POST-запроса
+                if (request.status === 200) { //если запрос выполнен успешно
+                    statusMessage.textContent = message.success;
+                    form.reset(); //очистка формы на странице
+                    setTimeout(() => {
+                        statusMessage.remove();
+                    }, 2000); //убираем сообщение о статусе через 2 сек
+                } else {
+                    statusMessage.textContent = message.fail;
+                }
+
+            });
+
+        });
+    }
+
 });
