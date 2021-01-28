@@ -12,7 +12,6 @@ window.addEventListener('DOMContentLoaded', () => {
         millisecondsInAMinute = millisecondsInASecond * 60,
         modal = document.querySelector('.modal'),
         openModalButtons = document.querySelectorAll('[data-modal="open"]'),
-        closeModalButton = document.querySelector('[data-modal="close"]'),
         forms = document.querySelectorAll('form');
 
     //Tabs
@@ -124,10 +123,9 @@ window.addEventListener('DOMContentLoaded', () => {
         btn.addEventListener('click', toggleModal);
     });
 
-    closeModalButton.addEventListener('click', toggleModal);
-
     modal.addEventListener('click', (e) => {
-        if (e.target === modal) { //clicking on a background of modal
+        if (e.target === modal || e.target.getAttribute('data-modal') == 'close') { 
+            //clicking on a background of modal or x-button
             toggleModal();
         }
     });
@@ -138,7 +136,7 @@ window.addEventListener('DOMContentLoaded', () => {
         }
     });
 
-    const modalTimer = setTimeout(toggleModal, 6000); //opens modal after 6s
+    const modalTimer = setTimeout(toggleModal, 50000); //opens modal after 50s
 
     const openModalByScroll = () => { //opens modal when page is scrolled to its bottom
         if (window.pageYOffset + document.documentElement.clientHeight >= document.documentElement.scrollHeight - 1) {
@@ -221,10 +219,10 @@ window.addEventListener('DOMContentLoaded', () => {
         ".menu__field > .container"
     ).render();
 
-    //Sending forms to server
+    //Sending forms to server and showing status messages to user
 
     const message = {
-        loading: 'Загрузка',
+        loading: 'img/form/spinner.svg',
         success: 'Спасибо! Скоро мы с вами свяжемся.',
         fail: 'Что-то пошло не так...'
     };
@@ -237,11 +235,15 @@ window.addEventListener('DOMContentLoaded', () => {
         form.addEventListener('submit', (e) => {
             e.preventDefault(); //убираем стандартное поведение браузера при отправке формы
 
-            //создаем блок для сообщения пользователю о статусе отправки формы
-            const statusMessage = document.createElement('div');
-            statusMessage.classList.add('status');
-            statusMessage.textContent = message.loading;
-            form.append(statusMessage); //выводим блок в конце формы
+            //создаем блок для значка загрузки
+            const statusMessage = document.createElement('img');
+            statusMessage.src = message.loading;
+            statusMessage.style.cssText = `
+                display: block;
+                padding-top: 10px;
+                margin: 0 auto;
+            `;
+            form.insertAdjacentElement('afterend', statusMessage); //выводим блок в конце формы
 
             const request = new XMLHttpRequest();
             request.open('POST', 'server.php'); //создаем POST-запрос
@@ -252,18 +254,46 @@ window.addEventListener('DOMContentLoaded', () => {
 
             request.addEventListener('load', () => { //событие при завершении POST-запроса
                 if (request.status === 200) { //если запрос выполнен успешно
-                    statusMessage.textContent = message.success;
+                    statusMessage.remove();
+                    showStatusModal(message.success);
                     form.reset(); //очистка формы на странице
-                    setTimeout(() => {
-                        statusMessage.remove();
-                    }, 2000); //убираем сообщение о статусе через 2 сек
                 } else {
-                    statusMessage.textContent = message.fail;
+                    showStatusModal(message.fail);
                 }
 
             });
 
         });
+    }
+
+    function showStatusModal(message) {
+        const prevModalDialog = document.querySelector('.modal__dialog');
+        prevModalDialog.classList.add('hide');
+
+        if (modal.classList.contains('hide')) {
+            //opens modal on the page to show status message (when form was filled directly on the page without modal) 
+            toggleModal();
+        }
+
+        const thanksModalDialog = document.createElement('div');
+        thanksModalDialog.classList.add('modal__dialog');
+        thanksModalDialog.innerHTML = `
+        <div class="modal__content">
+            <div data-modal="close" class="modal__close">&times;</div>
+            <div class="modal__title">${message}</div>
+        </div>
+        `;
+        modal.append(thanksModalDialog);
+
+        setTimeout( () => {
+            thanksModalDialog.remove();
+            prevModalDialog.classList.remove('hide');
+            prevModalDialog.classList.add('show');
+            if (modal.classList.contains('show')) {
+                //closes modal if user hasn't clicked x-button himself
+                toggleModal();
+            }
+        }, 4000); //returns previous modal after 4s
     }
 
 });
