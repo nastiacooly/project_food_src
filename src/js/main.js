@@ -219,7 +219,7 @@ window.addEventListener('DOMContentLoaded', () => {
         ".menu__field > .container"
     ).render();
 
-    //Sending forms to server and showing status messages to user
+    //Sending forms to server via Fetch API and showing status messages to user
 
     const message = {
         loading: 'img/form/spinner.svg',
@@ -245,22 +245,25 @@ window.addEventListener('DOMContentLoaded', () => {
             `;
             form.insertAdjacentElement('afterend', statusMessage); //выводим блок в конце формы
 
-            const request = new XMLHttpRequest();
-            request.open('POST', 'server.php'); //создаем POST-запрос
-
             const formData = new FormData(form); //переформатируем данные формы в FormData
 
-            request.send(formData); //отправляем данные на сервер
-
-            request.addEventListener('load', () => { //событие при завершении POST-запроса
-                if (request.status === 200) { //если запрос выполнен успешно
-                    statusMessage.remove();
-                    showStatusModal(message.success);
-                    form.reset(); //очистка формы на странице
-                } else {
-                    showStatusModal(message.fail);
-                }
-
+            fetch('server.php', {
+                method: 'POST', //POST-запрос
+                /* headers: { //формат данных для JSON
+                    'Content-type': 'application/json'
+                }, */
+                body: formData
+            })
+            .then(data => { //действия при успешности запроса
+                console.log(data.text()); //показываем полученный от сервера ответ для проверки
+                statusMessage.remove();
+                showStatusModal(message.success);
+            })
+            .catch(() => { //действия при неуспешности запроса
+                showStatusModal(message.fail);
+            })
+            .finally(() => { //действия при любом исходе запроса
+                form.reset(); //очистка формы на странице
             });
 
         });
