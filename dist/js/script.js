@@ -366,7 +366,11 @@ window.addEventListener('DOMContentLoaded', () => {
         toggleModal();
       }
     }, 4000); //returns previous modal after 4s
-  }
+  } //Interaction with JSON-server (mini database)
+
+
+  fetch('http://localhost:3000/menu').then(data => data.json()) //метод для парсинга ответа от сервера
+  .then(res => console.log(res));
 });
 
 /***/ })
