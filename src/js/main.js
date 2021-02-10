@@ -158,7 +158,7 @@ window.addEventListener('DOMContentLoaded', () => {
             this.price = price;
             this.classes = classes; //через Rest-оператор, чтобы в будущем передавать неограниченное число классов
             this.parent = document.querySelector(parentSelector);
-            this.transfer = 75;
+            this.transfer = 74;
             this.changeToRUB();
         }
 
