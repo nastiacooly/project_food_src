@@ -14,6 +14,7 @@ window.addEventListener('DOMContentLoaded', () => {
         openModalButtons = document.querySelectorAll('[data-modal="open"]'),
         forms = document.querySelectorAll('form'),
         slides = document.querySelectorAll('.offer__slide'),
+        slider = document.querySelector('.offer__slider'),
         prevSlideBtn = document.querySelector('.offer__slider-prev'),
         nextSlideBtn = document.querySelector('.offer__slider-next'),
         currentSlideIndex = document.querySelector('#current'),
@@ -325,7 +326,7 @@ window.addEventListener('DOMContentLoaded', () => {
         }, 4000); //returns previous modal after 4s
     }
     
-    //Slider
+    //Slider with navigation dots
 
     let slideIndex = 1;
     let slideOffset = 0;
@@ -345,6 +346,28 @@ window.addEventListener('DOMContentLoaded', () => {
     slides.forEach(slide => {
         slide.style.width = widthForSlider;
     });
+
+    //for creating navigation dots
+    slider.style.position = 'relative';
+    const dots = [];
+
+    const sliderDots = document.createElement('ol');
+    sliderDots.classList.add('slider-indicators');
+    slider.append(sliderDots);
+
+    for (let i = 0; i < slides.length; i++) {
+        const dot = document.createElement('li');
+        dot.classList.add('dot');
+        dot.setAttribute('data-slide-to', i + 1);
+
+        if (i == 0) {
+            dot.style.opacity = 1;
+        }
+
+        sliderDots.append(dot);
+        dots.push(dot);
+    }
+    //end of creating nav dots
 
     nextSlideBtn.addEventListener('click', () => {
         if (slideOffset == +widthForSlider.slice(0, widthForSlider.length - 2) * (slides.length - 1)) {
@@ -367,6 +390,8 @@ window.addEventListener('DOMContentLoaded', () => {
             currentSlideIndex.textContent = slideIndex;
         }
 
+        dots.forEach(dot => dot.style.opacity = '.5');
+        dots[slideIndex - 1].style.opacity = 1;
     });
 
     prevSlideBtn.addEventListener('click', () => {
@@ -390,7 +415,30 @@ window.addEventListener('DOMContentLoaded', () => {
             currentSlideIndex.textContent = slideIndex;
         }
 
+        dots.forEach(dot => dot.style.opacity = '.5');
+        dots[slideIndex - 1].style.opacity = 1;
     });
+
+    dots.forEach(dot => {
+        dot.addEventListener('click', (e) => {
+            const slideTo = e.target.getAttribute('data-slide-to');
+
+            slideIndex = slideTo;
+            slideOffset = +widthForSlider.slice(0, widthForSlider.length - 2) * (slideTo - 1);
+
+            slidesField.style.transform = `translateX(-${slideOffset}px)`;
+
+            if (slides.length < 10) {
+                currentSlideIndex.textContent = `0${slideIndex}`;
+            } else {
+                currentSlideIndex.textContent = slideIndex;
+            }
+
+            dots.forEach(dot => dot.style.opacity = '.5');
+            dots[slideIndex - 1].style.opacity = 1;
+        });
+    });
+    //end of slider
 
     /* Slider - First option
 
@@ -435,5 +483,5 @@ window.addEventListener('DOMContentLoaded', () => {
         changeSlideIndexByN(1);
     }); */
 
-
+    
 });
