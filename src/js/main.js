@@ -17,7 +17,10 @@ window.addEventListener('DOMContentLoaded', () => {
         prevSlideBtn = document.querySelector('.offer__slider-prev'),
         nextSlideBtn = document.querySelector('.offer__slider-next'),
         currentSlideIndex = document.querySelector('#current'),
-        totalSlidesNumber = document.querySelector('#total');
+        totalSlidesNumber = document.querySelector('#total'),
+        slidesWrapper = document.querySelector('.offer__slider-wrapper'),
+        slidesField = document.querySelector('.offer__slider-innerwrapper'),
+        widthForSlider = window.getComputedStyle(slidesWrapper).width;
 
     //Tabs
     //functions for tabs
@@ -322,9 +325,75 @@ window.addEventListener('DOMContentLoaded', () => {
         }, 4000); //returns previous modal after 4s
     }
     
-    //Slider - first option
+    //Slider
 
     let slideIndex = 1;
+    let slideOffset = 0;
+
+    if (slides.length < 10) {
+        totalSlidesNumber.textContent = `0${slides.length}`;
+        currentSlideIndex.textContent = `0${slideIndex}`;
+    } else {
+        totalSlidesNumber.textContent = slides.length;
+        currentSlideIndex.textContent = slideIndex;
+    }
+
+    slidesField.style.display = 'flex';
+    slidesField.style.width = 100 * slides.length + '%';
+    slidesField.style.transition = '0.5s all';
+    slidesWrapper.style.overflow = 'hidden';
+    slides.forEach(slide => {
+        slide.style.width = widthForSlider;
+    });
+
+    nextSlideBtn.addEventListener('click', () => {
+        if (slideOffset == +widthForSlider.slice(0, widthForSlider.length - 2) * (slides.length - 1)) {
+            slideOffset = 0;
+        } else {
+            slideOffset += +widthForSlider.slice(0, widthForSlider.length - 2);
+        }
+
+        slidesField.style.transform = `translateX(-${slideOffset}px)`;
+
+        if (slideIndex == slides.length) {
+            slideIndex = 1;
+        } else {
+            slideIndex++;
+        }
+
+        if (slides.length < 10) {
+            currentSlideIndex.textContent = `0${slideIndex}`;
+        } else {
+            currentSlideIndex.textContent = slideIndex;
+        }
+
+    });
+
+    prevSlideBtn.addEventListener('click', () => {
+        if (slideOffset == 0) {
+            slideOffset = +widthForSlider.slice(0, widthForSlider.length - 2) * (slides.length - 1);
+        } else {
+            slideOffset -= +widthForSlider.slice(0, widthForSlider.length - 2);
+        }
+
+        slidesField.style.transform = `translateX(-${slideOffset}px)`;
+
+        if (slideIndex == 1) {
+            slideIndex = slides.length;
+        } else {
+            slideIndex--;
+        }
+
+        if (slides.length < 10) {
+            currentSlideIndex.textContent = `0${slideIndex}`;
+        } else {
+            currentSlideIndex.textContent = slideIndex;
+        }
+
+    });
+
+    /* Slider - First option
+
     showSlideByIndex(slideIndex);
 
     if (slides.length < 10) {
@@ -364,7 +433,7 @@ window.addEventListener('DOMContentLoaded', () => {
 
     nextSlideBtn.addEventListener('click', () => {
         changeSlideIndexByN(1);
-    });
+    }); */
 
 
 });
