@@ -330,7 +330,12 @@ window.addEventListener('DOMContentLoaded', () => {
 
     let slideIndex = 1;
     let slideOffset = 0;
-    const width = +widthForSlider.slice(0, widthForSlider.length - 2); //ширина в цифрах из CSS (без приписки px)
+
+    function deleteNonDigits(str) { //удаляет всё, кроме цифр, в строке
+        return +str.replace(/\D/g, "");
+    }
+    
+    const width = deleteNonDigits(widthForSlider); //ширина в цифрах из CSS (без приписки px)
 
     function changeTotalSlidesNumberIndicator(totalIndicator) {
         if (slides.length < 10) {
