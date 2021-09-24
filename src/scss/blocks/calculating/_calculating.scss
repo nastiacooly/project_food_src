@@ -52,6 +52,12 @@
                 color: #fff;
                 background-color: $primary;
             }
+            &_highlighted-error {
+                border: 1px solid red;
+            }
+            &_highlighted-success {
+                border: 1px solid $primary;
+            }
         }
         &_medium {
             width: 743px;
